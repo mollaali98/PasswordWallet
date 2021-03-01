@@ -1,0 +1,17 @@
+enclave {
+
+    // includes
+
+
+
+    // define ECALLs
+    trusted {
+
+    };
+
+
+    // define OCALLs
+    untrusted {
+
+    };
+};
