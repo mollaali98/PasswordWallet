@@ -1,4 +1,4 @@
-#ifndef "enclave_t.h"
+#include "enclave_t.h"
 
 #include "string.h"
 
@@ -18,11 +18,11 @@ int ecall_create_wallet(const char* master_password) {
     // 5. Save wallet
     // 6. Exit enclave
 
-    sgx_status ocall_status, sealing_status;
+    sgx_status_t ocall_status, sealing_status;
     int ocall_ret;
 
     // 1. Check password policy
-    if (strlen(master_password) < 8 || strlen(master_password) + 1 > MAX_ITEM_SIZE) {
+    if (strlen(master_password) < 8 || strlen(master_password) + 1 > MAX_ITEMS_SIZE) {
         return ERR_PASSWORD_OUT_OF_RANGE;
     }
 
@@ -35,15 +35,15 @@ int ecall_create_wallet(const char* master_password) {
     // 3. Create new wallet
     // The malloc() function allocates a block of uninitialized memory and returns a void pointer to the first byte
     // of the allocated memory block if the allocation succeeds.
-    wallet_t* wallet = (wallet*) malloc(sizeof(wallet_t));
+    wallet_t* wallet = (wallet_t*)malloc(sizeof(wallet_t));
     wallet->size = 0;
     // Copies the first num characters of source to destination.
-    strncpy(wellet->master_password, master_password, strlen(master_password) + 1);
+    strncpy(wallet->master_password, master_password, strlen(master_password) + 1);
 
     // 4. Seal wallet
     size_t sealed_size = sizeof(sgx_sealed_data_t) + sizeof(wallet_t);
-    uint8_t* sealed_data = (uint8_t*) malloc(sealed_size);
-    sealing_status = seal_wallet(wallet, (sgx_sealed_date*) sealed_data, sealed_size);
+    uint8_t* sealed_data = (uint8_t*)malloc(sealed_size);
+    sealing_status = seal_wallet(wallet, (sgx_sealed_data_t*) sealed_data, sealed_size);
     // free() -> deallocates a block of memory previously allocated using calloc, malloc or realloc functions,
     // making it available for further allocations.
     free(wallet);
@@ -83,7 +83,7 @@ int ecall_show_wallet(const char* master_password, wallet_t* wallet, size_t wall
 
     // 1.Load wallet
     size_t sealed_size = sizeof(sgx_sealed_data_t) + sizeof(wallet_t);
-    uint8_t* sealed_data = (uint8_t*) malloc(sealed);
+    uint8_t* sealed_data = (uint8_t*) malloc(sealed_size);
     ocall_status = ocall_load_wallet(&ocall_ret, sealed_data, sealed_size);
     if (ocall_status != 0 || ocall_status != SGX_SUCCESS) {
         free(sealed_data);
@@ -134,7 +134,7 @@ int ecall_change_master_password(const char* old_password, const char* new_passw
     int ocall_ret;
 
     // 1. Check password policy
-    if (strlen(new_password) < 8 || strlen(new_password) + 1 > MAX_ITEM_SIZE) {
+    if (strlen(new_password) < 8 || strlen(new_password) + 1 > MAX_ITEMS_SIZE) {
         return ERR_PASSWORD_OUT_OF_RANGE;
     }
 
@@ -149,10 +149,10 @@ int ecall_change_master_password(const char* old_password, const char* new_passw
 
     // 3. Unseal wallet
     uint32_t plaintext_size = sizeof(wallet_t);
-    wallet_t* wallet = (walllet_t*) malloc(plaintext_size);
+    wallet_t* wallet = (wallet_t*) malloc(plaintext_size);
     sealing_status = unseal_wallet((sgx_sealed_data_t*) sealed_data, wallet, plaintext_size);
     free(sealed_data);
-    if (sealing_status != SGC_SUCCESS) {
+    if (sealing_status != SGX_SUCCESS) {
         free(wallet);
         return ERR_FAIL_UNSEAL;
     }
@@ -184,7 +184,7 @@ int ecall_change_master_password(const char* old_password, const char* new_passw
     }
 
     // 8. Exit enclave
-    return RET_SUCCESS
+    return RET_SUCCESS;
 }
 
 
@@ -234,9 +234,9 @@ int ecall_add_item(const char* master_password, const item_t* item, const size_t
     }
 
     // 4. Check input length
-    if (strlen(item->title) + 1 > MAX_ITEM_SIZE ||
-        strlen(item->username) + 1 > MAX_ITEM_SIZE ||
-        strlen(item->password) + 1 > MAX_ITEM_SIZE
+    if (strlen(item->title) + 1 > MAX_ITEMS_SIZE ||
+        strlen(item->username) + 1 > MAX_ITEMS_SIZE ||
+        strlen(item->password) + 1 > MAX_ITEMS_SIZE
             ) {
         free(wallet);
         return ERR_ITEM_TOO_LONG;
@@ -248,13 +248,13 @@ int ecall_add_item(const char* master_password, const item_t* item, const size_t
         free(wallet);
         return ERR_WALLET_FULL;
     }
-    wallet->items[wallet_size] = *items;
+    wallet->items[wallet_size] = *item;
     ++wallet->size;
 
     // 6. Seal wallet
     sealed_data = (uint8_t*) malloc(sealed_size);
     sealing_status = seal_wallet(wallet, (sgx_sealed_data_t*) sealed_data, sealed_size);
-    free(wallet)
+    free(wallet);
     if (sealing_status != SGX_SUCCESS) {
         free(wallet);
         free(sealed_data);
@@ -277,7 +277,7 @@ int ecall_add_item(const char* master_password, const item_t* item, const size_t
  *             pointers need to be specified, otherwise SGX will
  *             assume a count of 1 for all pointers.
  */
-int ocall_remove_items(const char* master_password, const int index) {
+int ecall_remove_item(const char* master_password, const int index) {
 
     // OVERVIEW
     // 1. Check index bounds
@@ -294,7 +294,7 @@ int ocall_remove_items(const char* master_password, const int index) {
 
     // 1. Check index bounds
     if (index < 0 || index >= MAX_ITEMS) {
-        return ERR_ITEMS_DOES_NOT_EXIST;
+        return ERR_ITEM_DOES_NOT_EXIST;
     }
 
     // 2. Load wallet
@@ -317,7 +317,7 @@ int ocall_remove_items(const char* master_password, const int index) {
     }
 
     // 4. Verify master-password
-    if (strcmp(wallet->masster_password, master_password) != 0) {
+    if (strcmp(wallet->master_password, master_password) != 0) {
         free(wallet);
         return ERR_WRONG_MASTER_PASSWORD;
     }

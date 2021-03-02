@@ -31,7 +31,7 @@ void print_wallet(const wallet_t* wallet){
     printf("\n------------------------------------------\n\n");
 }
 
-void is_error(int error_code){
+int is_error(int error_code){
     char err_message[100];
 
     // check error case
@@ -40,7 +40,7 @@ void is_error(int error_code){
             return 0;
 
         case ERR_PASSWORD_OUT_OF_RANGE:
-            sprintf(err_message, "Password should be at least 8 characters long and at most %d.", MAX_ITEM_SIZE);
+            sprintf(err_message, "Password should be at least 8 characters long and at most %d.", MAX_ITEMS_SIZE);
             break;
 
         case ERR_WALLET_ALREADY_EXISTS:
@@ -68,7 +68,7 @@ void is_error(int error_code){
             break;
 
         case ERR_ITEM_TOO_LONG:
-            sprintf(err_message, "Item too longth (maximum size: %d).", MAX_ITEM_SIZE);
+            sprintf(err_message, "Item too longth (maximum size: %d).", MAX_ITEMS_SIZE);
             break;
 
         case ERR_FAIL_SEAL:

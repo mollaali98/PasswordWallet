@@ -39,7 +39,7 @@ int ocall_is_wallet(void) {
 int main(int argc, char** argv) {
     sgx_enclave_id_t eid = 0;
     sgx_launch_token_t token = { 0 };
-    int update, ret;
+    int updated, ret;
     sgx_status_t ecall_status, enclave_status;
 
     enclave_status = sgx_create_enclave(ENCLAVE_FILE, SGX_DEBUG_FLAG, &token, &updated, &eid, NULL);
@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     char * n_value=NULL, *p_value=NULL, *c_value=NULL,  *x_value=NULL, *y_value=NULL, *z_value=NULL, *r_value=NULL;
 
     // Read user input
-    while ((opt = getopt(argc,argv,options)) != 1) {
+    while ((opt = getopt(argc,argv,options)) != -1) {
         switch (opt) {
             // Help
             case 'h':
@@ -117,14 +117,14 @@ int main(int argc, char** argv) {
                 error_print("Program existing.");
                 break;
             default:
-                error_print("Unknown option.")
+                error_print("Unknown option.");
         }
     }
     // Perform new wallet
     if (stop != 1) {
         // Show help
         if (h_flag) {
-            return show_help();
+            show_help();
         }
         // Create a new wallet
         else if (n_value != NULL) {
@@ -170,7 +170,7 @@ int main(int argc, char** argv) {
             } else {
                 ecall_status = ecall_remove_item(eid, &ret, p_value, index);
                 if (ecall_status != SGX_SUCCESS || is_error(ret)) {
-                    error_print("Fail to remove item.")''
+                    error_print("Fail to remove item.");
                 } else {
                     info_print("Item successfully removed from the wallet.");
                 }
