@@ -13,7 +13,7 @@ enclave {
 
         public int ecall_show_wallet(
             [in, string]const char* master_password,
-            [out, size=wallet_size] wallet* wallet,
+            [out, size=wallet_size] wallet_t* wallet,
             size_t wallet_size
         );
 
@@ -39,6 +39,18 @@ enclave {
 
     // define OCALLs
     untrusted {
+
+        int ocall_save_wallet(
+            [in, size=sealed_size]const uint8_t* sealed_data,
+            size_t sealed_size
+        );
+
+        int ocall_load_wallet(
+            [out, size=sealed_size]uint8_t* sealed_data,
+            size_t sealed_size
+        );
+
+        int ocall_is_wallet(void);
 
     };
 };
