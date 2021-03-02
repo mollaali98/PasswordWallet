@@ -3,13 +3,13 @@
 
 #include "wallet.h"
 
-void info_print(const char* str);
+void info_print(const char *str);
 
-void warning_print(const char* str);
+void warning_print(const char *str);
 
-void error_print(const char* str);
+void error_print(const char *str);
 
-void print_wallet(const wallet_t* wallet);
+void print_wallet(const wallet_t *wallet);
 
 int is_error(int error_code);
 

@@ -13,18 +13,18 @@
 using namespace std;
 
 // OCALLs implementation
-int ocall_save_wallet(const uint8_t* sealed_data, const size_t sealed_size) {
+int ocall_save_wallet(const uint8_t *sealed_data, const size_t sealed_size) {
     ofstream file(WALLET_FILE, ios::out | ios::binary);
     if (file.fail()) { return 1; }
-    file.write((const char*) sealed_data, sealed_size);
+    file.write((const char *) sealed_data, sealed_size);
     file.close();
     return 0;
 }
 
-int ocall_load_wallet(uint8_t* sealed_data, const size_t sealed_size) {
+int ocall_load_wallet(uint8_t *sealed_data, const size_t sealed_size) {
     ifstream file(WALLET_FILE, ios::in | ios::binary);
     if (file.fail()) { return 1; }
-    file.read((char*) sealed_data, sealed_size);
+    file.read((char *) sealed_data, sealed_size);
     file.close();
     return 0;
 }
@@ -36,9 +36,9 @@ int ocall_is_wallet(void) {
     return 1;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     sgx_enclave_id_t eid = 0;
-    sgx_launch_token_t token = { 0 };
+    sgx_launch_token_t token = {0};
     int updated, ret;
     sgx_status_t ecall_status, enclave_status;
 
@@ -49,37 +49,37 @@ int main(int argc, char** argv) {
     }
     info_print("Enclave successfully initialized.");
 
-    const char* options = "hvn:p:c:sax:y:z:r:";
+    const char *options = "hvn:p:c:sax:y:z:r:";
     opterr = 0;
     char err_message[100];
-    int opt, stop=0;
-    int h_flag=0, v_flag=0, s_flag=0, a_flag=0;
-    char * n_value=NULL, *p_value=NULL, *c_value=NULL,  *x_value=NULL, *y_value=NULL, *z_value=NULL, *r_value=NULL;
+    int opt, stop = 0;
+    int h_flag = 0, v_flag = 0, s_flag = 0, a_flag = 0;
+    char *n_value = NULL, *p_value = NULL, *c_value = NULL, *x_value = NULL, *y_value = NULL, *z_value = NULL, *r_value = NULL;
 
     // Read user input
-    while ((opt = getopt(argc,argv,options)) != -1) {
+    while ((opt = getopt(argc, argv, options)) != -1) {
         switch (opt) {
             // Help
             case 'h':
                 h_flag = 1;
                 break;
-            // Create new wallet
+                // Create new wallet
             case 'n':
                 n_value = optarg;
                 break;
-            // Master password
+                // Master password
             case 'p':
                 p_value = optarg;
                 break;
-            // Change master password
+                // Change master password
             case 'c':
                 c_value = optarg;
                 break;
-            // Show wallet
+                // Show wallet
             case 's':
                 s_flag = 1;
                 break;
-            // Add items
+                // Add items
             case 'a':
                 // Add item flag
                 a_flag = 1;
@@ -96,16 +96,16 @@ int main(int argc, char** argv) {
                 // Item`s password
                 z_value = optarg;
                 break;
-            // Remove item
+                // Remove item
             case 'r':
                 r_value = optarg;
                 break;
-            // Exception
+                // Exception
             case '?':
                 if (
                         optopt == 'n' || optopt == 'p' || optopt == 'c' || optopt == 'r' ||
                         optopt == 'x' || optopt == 'y' || optopt == 'z'
-                ) {
+                        ) {
                     sprintf(err_message, "Option -%c requires an argument", optopt);
                 } else if (isprint(optopt)) {
                     sprintf(err_message, "Unknown option -%c .", optopt);
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
         if (h_flag) {
             show_help();
         }
-        // Create a new wallet
+            // Create a new wallet
         else if (n_value != NULL) {
             ecall_status = ecall_create_wallet(eid, &ret, n_value);
             if (ecall_status != SGX_SUCCESS || is_error(ret)) {
@@ -135,9 +135,9 @@ int main(int argc, char** argv) {
                 info_print("Wallet successfully created.");
             }
         }
-        // Show wallet
+            // Show wallet
         else if (p_value != NULL && s_flag) {
-            wallet_t* wallet = (wallet_t*)malloc(sizeof(wallet_t));
+            wallet_t *wallet = (wallet_t *) malloc(sizeof(wallet_t));
             ecall_status = ecall_show_wallet(eid, &ret, p_value, wallet, sizeof(wallet_t));
             if (ecall_status != SGX_SUCCESS || is_error(ret)) {
                 error_print("Fail to retrieve wallet.");
@@ -147,9 +147,9 @@ int main(int argc, char** argv) {
             }
             free(wallet);
         }
-        // Add item
+            // Add item
         else if (p_value != NULL && a_flag && x_value != NULL && y_value != NULL && z_value != NULL) {
-            item_t* new_item = (item_t*)malloc(sizeof(item_t));
+            item_t *new_item = (item_t *) malloc(sizeof(item_t));
             strcpy(new_item->title, x_value);
             strcpy(new_item->username, y_value);
             strcpy(new_item->password, z_value);
@@ -161,10 +161,10 @@ int main(int argc, char** argv) {
             }
             free(new_item);
         }
-        // Remove item
+            // Remove item
         else if (p_value != NULL && r_value != NULL) {
-            char* p_end;
-            int index = (int)strtol(r_value, &p_end, 10);
+            char *p_end;
+            int index = (int) strtol(r_value, &p_end, 10);
             if (r_value == p_end) {
                 error_print("Option -r requires an integer arguments.");
             } else {
@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
                 }
             }
         }
-        // Display help
+            // Display help
         else {
             error_print("Wrong inputs.");
             show_help();
@@ -186,7 +186,7 @@ int main(int argc, char** argv) {
     // Destroy enclave
     enclave_status = sgx_destroy_enclave(eid);
     if (enclave_status != SGX_SUCCESS) {
-        error_print( "Fail to destroy enclave");
+        error_print("Fail to destroy enclave");
         return -1;
     }
     info_print("Enclave successfully destroyed");

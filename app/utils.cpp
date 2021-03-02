@@ -6,19 +6,19 @@
 #include "wallet.h"
 #include "enclave.h"
 
-void info_print(const char* str){
+void info_print(const char *str) {
     printf("[INFO] %s\n", str);
 }
 
-void warning_print(const char* str){
+void warning_print(const char *str) {
     printf("[WARNING] %s\n", str);
 }
 
-void error_print(const char* str){
+void error_print(const char *str) {
     printf("[ERROR] %s\n", str);
 }
 
-void print_wallet(const wallet_t* wallet){
+void print_wallet(const wallet_t *wallet) {
     printf("\n-----------------------------------------\n\n");
     printf("Simple password wallet based on Intel SGX.\n\n");
     printf("Number of items: %lu\n\n", wallet->size);
@@ -31,11 +31,11 @@ void print_wallet(const wallet_t* wallet){
     printf("\n------------------------------------------\n\n");
 }
 
-int is_error(int error_code){
+int is_error(int error_code) {
     char err_message[100];
 
     // check error case
-    switch(error_code) {
+    switch (error_code) {
         case RET_SUCCESS:
             return 0;
 
@@ -89,10 +89,10 @@ int is_error(int error_code){
 
 }
 
-void show_help(){
-    const char* command = "[-h Show this screen] [-v Show version] [-s Show wallet] " \
-		"[-n master-password] [-p master-password -c new-master-password]" \
-		"[-p master-password -a -x items_title -y items_username -z toitems_password]" \
-		"[-p master-password -r items_index]";
+void show_help() {
+    const char *command = "[-h Show this screen] [-v Show version] [-s Show wallet] " \
+        "[-n master-password] [-p master-password -c new-master-password]" \
+        "[-p master-password -a -x items_title -y items_username -z toitems_password]" \
+        "[-p master-password -r items_index]";
     printf("\nusage: %s %s\n\n", APP_NAME, command);
 }
